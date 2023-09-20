@@ -1,0 +1,38 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+times = pd.read_csv("FlightTime.csv")
+cols = times.columns
+copy_times = times
+
+parse_230 = times[times["Flight Time"] > 230]
+parse_depart = parse_230[times["Departure Time"] != 0]
+parsed = parse_depart[times["Arrival Time"] != 0]
+
+num_observations = parsed.shape[0]
+
+d = 1741.16
+l_ori = -87.90
+l_des = -118.41
+target_flight_time = 0.117*d + 0.517*(l_ori - l_des) + 20
+
+avg_depart_delay = parsed["Departure Delay"].mean() + target_flight_time
+avg_arrival_delay = parsed["Arrival Delay"].mean() + target_flight_time
+
+airlines = parsed["Carrier"].value_counts()
+
+mean_flight_time = parsed["Flight Time"].mean()
+carrier_flight_times = parsed.groupby("Carrier")["Flight Time"].mean()
+difference = mean_flight_time - carrier_flight_times
+difference
+
+difference_values = []
+airline_names = []
+for names, values in difference.items():
+    airline_names.append(names)
+    difference_values.append(values)
+plt.bar(airline_names, difference_values, color = ["Red", "Orange", "Green", "Blue", "Indigo"])
+plt.title("Comparison of Individual Mean Flight Times and Total Mean Flight Times per Airline")
+plt.xlabel("Airlines")
+plt.ylabel("Time Added")
+plt.show()
